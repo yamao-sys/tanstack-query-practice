@@ -1,0 +1,10 @@
+node_modules/
+.next/
+build/
+dist/
+out/
+public/
+package.json
+yarn.lock
+pnpm-lock.yaml
+next.config.ts
