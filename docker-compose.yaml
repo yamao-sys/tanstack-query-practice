@@ -34,3 +34,22 @@ services:
       - ./.data:/data/tanstack_query_practice_dev
       - ./.storage:/storage
     command: -scheme http -public-host ${URL:-localhost}:4443 -external-url http://${URL:-gcs}:4443 -port-http 8000
+
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend/:/app
+      - node_modules:/src/node_modules
+      - ./api_server/app/openapi/:/app/openapi/
+    ports:
+      - 3002:3000
+      - 6007:6006
+    environment:
+      - DISPLAY=0
+      - WATCHPACK_POLLING=true
+    restart: always
+    tty: true
+    stdin_open: true
+
+volumes:
+  node_modules:
