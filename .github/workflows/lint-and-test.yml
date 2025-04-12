@@ -21,9 +21,9 @@ jobs:
         uses: actions/setup-go@v4
         id: setup-go-lint
         with:
-          go-version-file: ./api-server/go.mod
+          go-version-file: ./api_server/app/go.mod
           cache: true
-          cache-dependency-path: ./api-server/go.sum
+          cache-dependency-path: ./api_server/app/go.sum
 
       - name: Install dependencies
         working-directory: ./api_server/app
@@ -68,9 +68,9 @@ jobs:
         uses: actions/setup-go@v4
         id: setup-go-test
         with:
-          go-version-file: ./api-server/go.mod
+          go-version-file: ./api_server/app/go.mod
           cache: true
-          cache-dependency-path: ./api-server/go.sum
+          cache-dependency-path: ./api_server/app/go.sum
 
       - name: Cache Go tools
         uses: actions/cache@v4
@@ -81,7 +81,7 @@ jobs:
           key: go-tools-${{ runner.os }}-${{ hashFiles('go.mod') }}-tools
 
       - name: go mod tidy
-        working-directory: ./api-server
+        working-directory: ./api_server/app
         if: ${{ steps.setup-go-test.outputs.cache-hit != 'true' }}
         run: go mod tidy
 
@@ -90,7 +90,7 @@ jobs:
         run: echo "$HOME/go/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
-        working-directory: ./api-server
+        working-directory: ./api_server/app
         if: ${{ steps.cache-go-tools.outputs.cache-hit != 'true' }}
         run: |
           go install github.com/rubenv/sql-migrate/...@latest
