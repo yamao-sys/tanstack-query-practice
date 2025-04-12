@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'api_server/app/**/*.go'
+      - '.github/workflows/lint-and-test.yml'
   push:
     branches:
       - main
