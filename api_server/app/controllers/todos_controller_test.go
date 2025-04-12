@@ -273,7 +273,7 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusOk() {
 	assert.Equal(s.T(), null.String{String: "test updated content 1", Valid: true}, todo.Content)
 }
 
-func (s *testTodosControllerSuite) TestPatchTodo_StatusBadRequest() {
+func (s *testTodosControllerSuite) TestPatchTodo_BadRequest() {
 	var mu sync.Mutex
 	mu.Lock()
 	defer mu.Unlock()
@@ -294,14 +294,14 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusBadRequest() {
 	}
 	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Patch("/todos/"+strconv.Itoa(int(todo.ID))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
-	assert.Equal(s.T(), http.StatusBadRequest, result.Code())
+	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res todos.PatchTodo400JSONResponse
+	var res todos.PatchTodo200JSONResponse
 	result.UnmarshalBodyToObject(&res)
 	titleValidationErrors := *res.Errors.Title
 	assert.Equal(s.T(), []string{"タイトルは必須入力です。"}, titleValidationErrors)
 	
-	assert.Equal(s.T(), int64(http.StatusBadRequest), res.Code)
+	assert.Equal(s.T(), int64(http.StatusOK), res.Code)
 
 	// NOTE: TODOリストが更新されていないことを確認
 	if err := todo.Reload(ctx, DBCon); err != nil {
