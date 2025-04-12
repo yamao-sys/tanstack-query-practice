@@ -60,7 +60,8 @@ func (todosController *todosController) PostTodos(ctx context.Context, request t
 	switch statusCode {
 	case http.StatusBadRequest:
 		validationErrors := todosController.mappingValidationErrorStruct(err)
-		return todos.PostTodos400JSONResponse{Code: http.StatusBadRequest, Errors: validationErrors}, nil
+		res := todos.StoreTodoResponseJSONResponse{ Code: http.StatusOK, Errors: validationErrors }
+		return todos.PostTodos200JSONResponse{StoreTodoResponseJSONResponse: res}, nil
 	case http.StatusInternalServerError:
 		return todos.PostTodos400JSONResponse{Code: http.StatusInternalServerError, Errors: todos.StoreTodoValidationError{}}, err
 	}

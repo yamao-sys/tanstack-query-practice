@@ -84,7 +84,7 @@ func (s *testTodosControllerSuite) TestPostTodos_StatusOk() {
 	assert.Equal(s.T(), null.String{String: "test_content", Valid: true}, todo.Content)
 }
 
-func (s *testTodosControllerSuite) TestPostTodos_StatusBadRequest() {
+func (s *testTodosControllerSuite) TestPostTodos_BadRequest() {
 	var mu sync.Mutex
 	mu.Lock()
 	defer mu.Unlock()
@@ -98,14 +98,14 @@ func (s *testTodosControllerSuite) TestPostTodos_StatusBadRequest() {
 	}
 	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Post("/todos").WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
-	assert.Equal(s.T(), http.StatusBadRequest, result.Code())
+	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res todos.PostTodos400JSONResponse
+	var res todos.PostTodos200JSONResponse
 	result.UnmarshalBodyToObject(&res)
 	titleValidationErrors := *res.Errors.Title
 	assert.Equal(s.T(), []string{"タイトルは必須入力です。"}, titleValidationErrors)
 	
-	assert.Equal(s.T(), int64(http.StatusBadRequest), res.Code)
+	assert.Equal(s.T(), int64(http.StatusOK), res.Code)
 
 	// NOTE: TODOリストが作成されていないことを確認
 	isExistTodo, _ := models.Todos(
