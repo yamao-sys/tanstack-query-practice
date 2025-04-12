@@ -24,7 +24,7 @@ export const TodosNewForm: FC = () => {
     onMutate: () => setValidationErrors(INITIAL_VALIDATION_ERRORS),
     mutationFn: async (data: StoreTodoInput): Promise<StoreTodoValidationError> =>
       await postTodos(data),
-    onSuccess: (data, _variables, _context) => {
+    onSuccess: (data) => {
       if (data === undefined) return;
 
       if (Object.keys(data).length > 0) {
@@ -35,7 +35,7 @@ export const TodosNewForm: FC = () => {
       window.alert("TODOの作成に成功しました!");
       router.push("/");
     },
-    onError: (_error) => window.alert("予期しないエラーが発生しました."),
+    onError: () => window.alert("予期しないエラーが発生しました."),
   });
 
   const onSubmit = handleSubmit((data) => mutation.mutate(data));
