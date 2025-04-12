@@ -9,7 +9,6 @@ import (
 	"app/test/factories"
 	"net/http"
 	"strconv"
-	"sync"
 	"testing"
 
 	"github.com/labstack/echo/v4"
@@ -54,10 +53,6 @@ func (s *testTodosControllerSuite) TearDownTest() {
 }
 
 func (s *testTodosControllerSuite) TestPostTodos_StatusOk() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 	s.SignIn()
 
@@ -85,10 +80,6 @@ func (s *testTodosControllerSuite) TestPostTodos_StatusOk() {
 }
 
 func (s *testTodosControllerSuite) TestPostTodos_BadRequest() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 	s.SignIn()
 
@@ -115,10 +106,6 @@ func (s *testTodosControllerSuite) TestPostTodos_BadRequest() {
 }
 
 func (s *testTodosControllerSuite) TestPostTodos_StatusUnauthorized() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 	reqBody := todos.StoreTodoInput{
 		Title: "test_title",
@@ -135,10 +122,6 @@ func (s *testTodosControllerSuite) TestPostTodos_StatusUnauthorized() {
 }
 
 func (s *testTodosControllerSuite) TestGetTodos_StatusOk() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 	s.SignIn()
 
@@ -171,20 +154,12 @@ func (s *testTodosControllerSuite) TestGetTodos_StatusOk() {
 }
 
 func (s *testTodosControllerSuite) TestGetTodos_StatusUnauthorized() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Get("/todos").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusUnauthorized, result.Code())
 }
 
 func (s *testTodosControllerSuite) TestGetTodo_StatusOk() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 	s.SignIn()
 
@@ -207,10 +182,6 @@ func (s *testTodosControllerSuite) TestGetTodo_StatusOk() {
 }
 
 func (s *testTodosControllerSuite) TestGetTodo_StatusUnauthorized() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 	
 	result := testutil.NewRequest().Get("/todos/1").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
@@ -218,10 +189,6 @@ func (s *testTodosControllerSuite) TestGetTodo_StatusUnauthorized() {
 }
 
 func (s *testTodosControllerSuite) TestGetTodo_StatusNotFound() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 	s.SignIn()
 
@@ -238,10 +205,6 @@ func (s *testTodosControllerSuite) TestGetTodo_StatusNotFound() {
 }
 
 func (s *testTodosControllerSuite) TestPatchTodo_StatusOk() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 	s.SignIn()
 
@@ -274,10 +237,6 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusOk() {
 }
 
 func (s *testTodosControllerSuite) TestPatchTodo_BadRequest() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 	s.SignIn()
 
@@ -312,10 +271,6 @@ func (s *testTodosControllerSuite) TestPatchTodo_BadRequest() {
 }
 
 func (s *testTodosControllerSuite) TestPatchTodo_StatusUnauthorized() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 
 	reqBody := todos.StoreTodoInput{
@@ -327,10 +282,6 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusUnauthorized() {
 }
 
 func (s *testTodosControllerSuite) TestPatchTodo_StatusNotFound() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 	s.SignIn()
 
@@ -358,10 +309,6 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusNotFound() {
 }
 
 func (s *testTodosControllerSuite) TestDeleteTodo_StatusOk() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 	s.SignIn()
 
@@ -388,10 +335,6 @@ func (s *testTodosControllerSuite) TestDeleteTodo_StatusOk() {
 }
 
 func (s *testTodosControllerSuite) TestDeleteTodo_StatusUnauthorized() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-
 	s.SetCsrfHeaderValues()
 
 	result := testutil.NewRequest().Delete("/todos/1").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
@@ -399,10 +342,6 @@ func (s *testTodosControllerSuite) TestDeleteTodo_StatusUnauthorized() {
 }
 
 func (s *testTodosControllerSuite) TestDeleteTodo_StatusNotFound() {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-	
 	s.SetCsrfHeaderValues()
 	s.SignIn()
 
