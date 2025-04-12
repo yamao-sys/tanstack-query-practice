@@ -113,7 +113,8 @@ func (todosController *todosController) PatchTodo(ctx context.Context, request t
 	switch statusCode {
 	case http.StatusBadRequest:
 		validationErrors := todosController.mappingValidationErrorStruct(err)
-		return todos.PatchTodo400JSONResponse{Code: http.StatusBadRequest, Errors: validationErrors}, nil
+		res := todos.StoreTodoResponseJSONResponse{ Code: http.StatusOK, Errors: validationErrors }
+		return todos.PatchTodo200JSONResponse{StoreTodoResponseJSONResponse: res}, nil
 	case http.StatusNotFound:
 		res := todos.NotFoundErrorResponseJSONResponse{Code: http.StatusNotFound}
 		return todos.PatchTodo404JSONResponse{NotFoundErrorResponseJSONResponse: res}, nil
