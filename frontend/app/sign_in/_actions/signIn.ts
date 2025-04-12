@@ -3,6 +3,7 @@
 import { getRequestHeaders } from "@/apis/clients/base";
 import { paths } from "@/apis/generated/auth/apiSchema";
 import { AuthSignInInput } from "@/apis/types/auth";
+import { cookies } from "next/headers";
 import createClient from "openapi-fetch";
 
 const client = createClient<paths>({
@@ -15,10 +16,31 @@ export async function postSignIn(input: AuthSignInInput) {
     ...(await getRequestHeaders()),
     body: input,
   });
-  const statusCode = response.status;
-  if (statusCode === 500) {
+  if (response.status === 500) {
     throw Error("Internal Server Error");
   }
+  if (response.status === 400) {
+    return "メールアドレスまたはパスワードが正しくありません";
+  }
 
-  return statusCode === 400 ? "メールアドレスまたはパスワードに該当するユーザが存在しません。" : "";
+  // NOTE: クライアントにCookieをセット
+  const setCookie = response.headers.get("set-cookie");
+  if (!setCookie) {
+    throw Error();
+  }
+  const token = setCookie?.split(";")[0]?.split("=")[1];
+  if (!token) {
+    throw Error();
+  }
+
+  // TODO: cookieの属性は環境変数に切り出す
+  (await cookies()).set({
+    name: "token",
+    value: token,
+    secure: true,
+    sameSite: "none",
+    httpOnly: true,
+  });
+
+  return "";
 }
