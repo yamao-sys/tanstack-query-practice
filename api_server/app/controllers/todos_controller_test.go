@@ -193,6 +193,7 @@ func (s *testTodosControllerSuite) TestGetTodo_StatusOk() {
 	if err := todo.Insert(ctx, DBCon, boil.Infer()); err != nil {
 		s.T().Fatalf("failed to create test todo %v", err)
 	}
+	todo.Reload(ctx, DBCon)
 
 	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Get("/todos/"+strconv.Itoa(int(todo.ID))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
@@ -229,6 +230,7 @@ func (s *testTodosControllerSuite) TestGetTodo_StatusNotFound() {
 	if err := todo.Insert(ctx, DBCon, boil.Infer()); err != nil {
 		s.T().Fatalf("failed to create test todo %v", err)
 	}
+	todo.Reload(ctx, DBCon)
 	
 	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Get("/todos/"+strconv.Itoa(int(todo.ID + 1))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
@@ -248,6 +250,7 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusOk() {
 	if err := todo.Insert(ctx, DBCon, boil.Infer()); err != nil {
 		s.T().Fatalf("failed to create test todo %v", err)
 	}
+	todo.Reload(ctx, DBCon)
 
 	reqBody := todos.StoreTodoInput{
 		Title: "test updated title 1",
@@ -283,6 +286,7 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusBadRequest() {
 	if err := todo.Insert(ctx, DBCon, boil.Infer()); err != nil {
 		s.T().Fatalf("failed to create test todo %v", err)
 	}
+	todo.Reload(ctx, DBCon)
 	
 	reqBody := todos.StoreTodoInput{
 		Title: "",
@@ -335,6 +339,7 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusNotFound() {
 	if err := todo.Insert(ctx, DBCon, boil.Infer()); err != nil {
 		s.T().Fatalf("failed to create test todo %v", err)
 	}
+	todo.Reload(ctx, DBCon)
 	
 	reqBody := todos.StoreTodoInput{
 		Title: "test updated title 1",
@@ -365,6 +370,7 @@ func (s *testTodosControllerSuite) TestDeleteTodo_StatusOk() {
 	if err := todo.Insert(ctx, DBCon, boil.Infer()); err != nil {
 		s.T().Fatalf("failed to create test todo %v", err)
 	}
+	todo.Reload(ctx, DBCon)
 
 	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Delete("/todos/"+strconv.Itoa(int(todo.ID))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
@@ -405,6 +411,7 @@ func (s *testTodosControllerSuite) TestDeleteTodo_StatusNotFound() {
 	if err := todo.Insert(ctx, DBCon, boil.Infer()); err != nil {
 		s.T().Fatalf("failed to create test todo %v", err)
 	}
+	todo.Reload(ctx, DBCon)
 	
 	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Delete("/todos/"+strconv.Itoa(int(todo.ID + 1))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
