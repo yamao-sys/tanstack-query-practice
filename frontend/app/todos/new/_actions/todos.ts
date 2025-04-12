@@ -15,12 +15,9 @@ export async function postTodos(input: StoreTodoInput): Promise<StoreTodoValidat
     ...(await getRequestHeaders()),
     body: input,
   });
-  if (response.status === 500) {
+  if (response.status === 500 || !data?.errors) {
     throw Error("Internal Server Error");
   }
-  if (!!data?.errors && response.status === 400) {
-    return data.errors;
-  }
 
-  return {};
+  return data.errors;
 }
