@@ -2,14 +2,9 @@ import { StoreTodoInput, StoreTodoValidationError } from "@/apis/types/todos";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-const INITIAL_VALIDATION_ERRORS = {
+export const INITIAL_VALIDATION_ERRORS = {
   title: [],
-  description: [],
-  startDate: [],
-  endDate: [],
-  minBudget: [],
-  maxBudget: [],
-  isActive: [],
+  content: [],
 };
 
 export const useStoreTodo = (doStoreTodoInput: StoreTodoInput) => {
