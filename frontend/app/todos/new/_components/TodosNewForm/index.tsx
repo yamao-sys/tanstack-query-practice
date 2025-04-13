@@ -2,16 +2,11 @@
 
 import { StoreTodoInput, StoreTodoValidationError } from "@/apis/types/todos";
 import { FC } from "react";
-import { postTodos } from "../../_actions/todos";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { TodoStoreForm } from "@/app/todos/_components/TodoStoreForm";
-import { useStoreTodo } from "@/app/todos/_hooks/useStoreTodo";
-
-const INITIAL_VALIDATION_ERRORS = {
-  title: [],
-  content: [],
-};
+import { INITIAL_VALIDATION_ERRORS, useStoreTodo } from "@/app/todos/_hooks/useStoreTodo";
+import { postTodos } from "@/apis/todos.api";
 
 export const TodosNewForm: FC = () => {
   const doStoreTodoInput: StoreTodoInput = { title: "", content: "" };
