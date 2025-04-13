@@ -9,7 +9,7 @@ type Props = {
 };
 
 export const TodosList: FC<Props> = ({ todos }: Props) => {
-  const [displayTodos, setDisplayTodos] = useState<Todo[]>(todos);
+  const [displayTodos, setDisplayTodos] = useState<Todo[]>(todos); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   return (
     <>
