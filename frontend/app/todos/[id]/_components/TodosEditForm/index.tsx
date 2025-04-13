@@ -1,24 +1,31 @@
 "use client";
 
-import { StoreTodoInput, StoreTodoValidationError } from "@/apis/types/todos";
-import { FC } from "react";
-import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { patchTodo } from "@/apis/todos.api";
+import { StoreTodoInput, StoreTodoValidationError, Todo } from "@/apis/types/todos";
 import { TodoStoreForm } from "@/app/todos/_components/TodoStoreForm";
 import { INITIAL_VALIDATION_ERRORS, useStoreTodo } from "@/app/todos/_hooks/useStoreTodo";
-import { postTodos } from "@/apis/todos.api";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { FC } from "react";
 
-export const TodosNewForm: FC = () => {
-  const doStoreTodoInput: StoreTodoInput = { title: "", content: "" };
+type Props = {
+  todo: Todo;
+};
+
+export const TodosEditForm: FC<Props> = ({ todo }: Props) => {
+  const doUpdateTodoInput: StoreTodoInput = {
+    title: todo.title,
+    content: todo.content,
+  };
   const { register, handleSubmit, validationErrors, setValidationErrors } =
-    useStoreTodo(doStoreTodoInput);
+    useStoreTodo(doUpdateTodoInput);
 
   const router = useRouter();
 
   const mutation = useMutation({
     onMutate: () => setValidationErrors(INITIAL_VALIDATION_ERRORS),
     mutationFn: async (data: StoreTodoInput): Promise<StoreTodoValidationError> =>
-      await postTodos(data),
+      await patchTodo(String(todo.id), data),
     onSuccess: (data) => {
       if (data === undefined) return;
 
@@ -27,7 +34,7 @@ export const TodosNewForm: FC = () => {
         return;
       }
 
-      window.alert("TODOの作成に成功しました!");
+      window.alert("TODOの更新に成功しました!");
       router.push("/");
     },
     onError: () => window.alert("予期しないエラーが発生しました."),
@@ -40,7 +47,7 @@ export const TodosNewForm: FC = () => {
       {mutation.isPending && <p>Processing...</p>}
 
       <TodoStoreForm
-        header='TODO作成'
+        header='TODO編集'
         register={register}
         onSubmit={onSubmit}
         validationErrors={validationErrors}
