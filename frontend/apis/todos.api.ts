@@ -10,6 +10,17 @@ const client = createClient<paths>({
   credentials: "include",
 });
 
+export async function getTodos(): Promise<Todo[]> {
+  const { data, response } = await client.GET("/todos", {
+    ...(await getRequestHeaders()),
+  });
+  if (data === undefined || response.status === 404) {
+    throw Error("Not Found Error");
+  }
+
+  return data.todos;
+}
+
 export async function postTodos(input: StoreTodoInput): Promise<StoreTodoValidationError> {
   const { data, response } = await client.POST("/todos", {
     ...(await getRequestHeaders()),
