@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"app/generated/todos"
 	models "app/models/generated"
+	apis "app/openapi"
 	"app/test/factories"
 	"net/http"
 	"strconv"
@@ -37,14 +37,14 @@ func (s *testTodosHandlerSuite) TearDownTest() {
 func (s *testTodosHandlerSuite) TestPostTodos_StatusOk() {
 	s.SignIn()
 
-	reqBody := todos.StoreTodoInput{
+	reqBody := apis.StoreTodoInput{
 		Title: "test_title",
 		Content: "test_content",
 	}
 	result := testutil.NewRequest().Post("/todos").WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res todos.PostTodos200JSONResponse
+	var res apis.PostTodos200JSONResponse
 	result.UnmarshalBodyToObject(&res)
 	
 	assert.Equal(s.T(), int64(http.StatusOK), res.Code)
@@ -62,14 +62,14 @@ func (s *testTodosHandlerSuite) TestPostTodos_StatusOk() {
 func (s *testTodosHandlerSuite) TestPostTodos_BadRequest() {
 	s.SignIn()
 
-	reqBody := todos.StoreTodoInput{
+	reqBody := apis.StoreTodoInput{
 		Title: "",
 		Content: "test_content",
 	}
 	result := testutil.NewRequest().Post("/todos").WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res todos.PostTodos200JSONResponse
+	var res apis.PostTodos200JSONResponse
 	result.UnmarshalBodyToObject(&res)
 	titleValidationErrors := *res.Errors.Title
 	assert.Equal(s.T(), []string{"タイトルは必須入力です。"}, titleValidationErrors)
@@ -84,7 +84,7 @@ func (s *testTodosHandlerSuite) TestPostTodos_BadRequest() {
 }
 
 func (s *testTodosHandlerSuite) TestPostTodos_StatusUnauthorized() {
-	reqBody := todos.StoreTodoInput{
+	reqBody := apis.StoreTodoInput{
 		Title: "test_title",
 		Content: "test_content",
 	}
@@ -120,7 +120,7 @@ func (s *testTodosHandlerSuite) TestGetTodos_StatusOk() {
 	result := testutil.NewRequest().Get("/todos").WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res todos.GetTodos200JSONResponse
+	var res apis.GetTodos200JSONResponse
 	result.UnmarshalBodyToObject(&res)
 
 	assert.Equal(s.T(), 2, len(res.Todos))
@@ -146,7 +146,7 @@ func (s *testTodosHandlerSuite) TestGetTodo_StatusOk() {
 	result := testutil.NewRequest().Get("/todos/"+strconv.Itoa(int(todo.ID))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res todos.GetTodo200JSONResponse
+	var res apis.GetTodo200JSONResponse
 	result.UnmarshalBodyToObject(&res)
 
 	assert.Equal(s.T(), "test title 1", res.Todo.Title)
@@ -182,14 +182,14 @@ func (s *testTodosHandlerSuite) TestPatchTodo_StatusOk() {
 	}
 	todo.Reload(ctx, DBCon)
 
-	reqBody := todos.StoreTodoInput{
+	reqBody := apis.StoreTodoInput{
 		Title: "test updated title 1",
 		Content: "test updated content 1",
 	}
 	result := testutil.NewRequest().Patch("/todos/"+strconv.Itoa(int(todo.ID))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res todos.PatchTodo200JSONResponse
+	var res apis.PatchTodo200JSONResponse
 	result.UnmarshalBodyToObject(&res)
 	
 	assert.Equal(s.T(), int64(http.StatusOK), res.Code)
@@ -212,14 +212,14 @@ func (s *testTodosHandlerSuite) TestPatchTodo_BadRequest() {
 	}
 	todo.Reload(ctx, DBCon)
 	
-	reqBody := todos.StoreTodoInput{
+	reqBody := apis.StoreTodoInput{
 		Title: "",
 		Content: "test updated content 1",
 	}
 	result := testutil.NewRequest().Patch("/todos/"+strconv.Itoa(int(todo.ID))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res todos.PatchTodo200JSONResponse
+	var res apis.PatchTodo200JSONResponse
 	result.UnmarshalBodyToObject(&res)
 	titleValidationErrors := *res.Errors.Title
 	assert.Equal(s.T(), []string{"タイトルは必須入力です。"}, titleValidationErrors)
@@ -235,7 +235,7 @@ func (s *testTodosHandlerSuite) TestPatchTodo_BadRequest() {
 }
 
 func (s *testTodosHandlerSuite) TestPatchTodo_StatusUnauthorized() {
-	reqBody := todos.StoreTodoInput{
+	reqBody := apis.StoreTodoInput{
 		Title: "test_title",
 		Content: "test_content",
 	}
@@ -253,7 +253,7 @@ func (s *testTodosHandlerSuite) TestPatchTodo_StatusNotFound() {
 	}
 	todo.Reload(ctx, DBCon)
 	
-	reqBody := todos.StoreTodoInput{
+	reqBody := apis.StoreTodoInput{
 		Title: "test updated title 1",
 		Content: "test updated content 1",
 	}
@@ -281,7 +281,7 @@ func (s *testTodosHandlerSuite) TestDeleteTodo_StatusOk() {
 	result := testutil.NewRequest().Delete("/todos/"+strconv.Itoa(int(todo.ID))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res todos.DeleteTodo200JSONResponse
+	var res apis.DeleteTodo200JSONResponse
 	result.UnmarshalBodyToObject(&res)
 	
 	assert.Equal(s.T(), int64(http.StatusOK), res.Code)
