@@ -1,9 +1,9 @@
 "use server";
 
 import { getRequestHeaders } from "@/apis/clients/base";
-import { paths } from "@/apis/generated/todos/apiSchema";
-import { StoreTodoInput, StoreTodoValidationError, Todo } from "@/apis/types/todos";
 import createClient from "openapi-fetch";
+import { paths } from "./apiSchema";
+import { StoreTodoInput, StoreTodoValidationError, Todo } from "./types";
 
 const client = createClient<paths>({
   baseUrl: `${process.env.API_ENDPOINT_URI ?? "http://api_server:8080"}/`,

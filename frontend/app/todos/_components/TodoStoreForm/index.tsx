@@ -1,4 +1,4 @@
-import { StoreTodoInput, StoreTodoValidationError } from "@/apis/types/todos";
+import { StoreTodoInput, StoreTodoValidationError } from "@/apis/types";
 import { FC } from "react";
 import { UseFormRegister } from "react-hook-form";
 

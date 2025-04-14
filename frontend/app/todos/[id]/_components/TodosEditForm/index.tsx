@@ -1,7 +1,7 @@
 "use client";
 
 import { patchTodo } from "@/apis/todos.api";
-import { StoreTodoInput, StoreTodoValidationError, Todo } from "@/apis/types/todos";
+import { StoreTodoInput, StoreTodoValidationError, Todo } from "@/apis/types";
 import { TodoStoreForm } from "@/app/todos/_components/TodoStoreForm";
 import { INITIAL_VALIDATION_ERRORS, useStoreTodo } from "@/app/todos/_hooks/useStoreTodo";
 import { useMutation } from "@tanstack/react-query";
