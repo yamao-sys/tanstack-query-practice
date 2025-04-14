@@ -1,11 +1,8 @@
-package controllers
+package handlers
 
 import (
-	"app/generated/auth"
 	"app/generated/todos"
-	"app/middlewares"
 	models "app/models/generated"
-	"app/services"
 	"app/test/factories"
 	"net/http"
 	"strconv"
@@ -21,46 +18,29 @@ import (
 	"github.com/oapi-codegen/testutil"
 )
 
-var (
-	testTodosController TodosController
-)
-
-type testTodosControllerSuite struct {
+type testTodosHandlerSuite struct {
 	WithDBSuite
 }
 
-func (s *testTodosControllerSuite) SetupTest() {
+func (s *testTodosHandlerSuite) SetupTest() {
 	s.SetDBCon()
 
-	todoService := services.NewTodoService(DBCon)
+	s.initializeHandlers()
 
-	// NOTE: テスト対象のコントローラを設定
-	testTodosController = NewTodosController(todoService)
-
-	todosMiddlewares := []todos.StrictMiddlewareFunc{middlewares.AuthMiddleware}
-	strictHandler := todos.NewStrictHandler(testTodosController, todosMiddlewares)
-	todos.RegisterHandlers(e, strictHandler)
-
-	authService := services.NewAuthService(DBCon)
-	authController := NewAuthController(authService)
-
-	authStrictHandler := auth.NewStrictHandler(authController, nil)
-	auth.RegisterHandlers(e, authStrictHandler)
+	s.SetCsrfHeaderValues()
 }
 
-func (s *testTodosControllerSuite) TearDownTest() {
+func (s *testTodosHandlerSuite) TearDownTest() {
 	s.CloseDB()
 }
 
-func (s *testTodosControllerSuite) TestPostTodos_StatusOk() {
-	s.SetCsrfHeaderValues()
+func (s *testTodosHandlerSuite) TestPostTodos_StatusOk() {
 	s.SignIn()
 
 	reqBody := todos.StoreTodoInput{
 		Title: "test_title",
 		Content: "test_content",
 	}
-	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Post("/todos").WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
@@ -79,15 +59,13 @@ func (s *testTodosControllerSuite) TestPostTodos_StatusOk() {
 	assert.Equal(s.T(), null.String{String: "test_content", Valid: true}, todo.Content)
 }
 
-func (s *testTodosControllerSuite) TestPostTodos_BadRequest() {
-	s.SetCsrfHeaderValues()
+func (s *testTodosHandlerSuite) TestPostTodos_BadRequest() {
 	s.SignIn()
 
 	reqBody := todos.StoreTodoInput{
 		Title: "",
 		Content: "test_content",
 	}
-	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Post("/todos").WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
@@ -105,8 +83,7 @@ func (s *testTodosControllerSuite) TestPostTodos_BadRequest() {
 	assert.False(s.T(), isExistTodo)
 }
 
-func (s *testTodosControllerSuite) TestPostTodos_StatusUnauthorized() {
-	s.SetCsrfHeaderValues()
+func (s *testTodosHandlerSuite) TestPostTodos_StatusUnauthorized() {
 	reqBody := todos.StoreTodoInput{
 		Title: "test_title",
 		Content: "test_content",
@@ -121,8 +98,7 @@ func (s *testTodosControllerSuite) TestPostTodos_StatusUnauthorized() {
 	assert.False(s.T(), isExistTodo)
 }
 
-func (s *testTodosControllerSuite) TestGetTodos_StatusOk() {
-	s.SetCsrfHeaderValues()
+func (s *testTodosHandlerSuite) TestGetTodos_StatusOk() {
 	s.SignIn()
 
 	var todosSlice models.TodoSlice
@@ -141,7 +117,6 @@ func (s *testTodosControllerSuite) TestGetTodos_StatusOk() {
 		s.T().Fatalf("failed to create TestFetchTodosList Data: %v", err)
 	}
 	
-	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Get("/todos").WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
@@ -153,14 +128,12 @@ func (s *testTodosControllerSuite) TestGetTodos_StatusOk() {
 	assert.Equal(s.T(), "test content 1", res.Todos[0].Content)
 }
 
-func (s *testTodosControllerSuite) TestGetTodos_StatusUnauthorized() {
-	s.SetCsrfHeaderValues()
+func (s *testTodosHandlerSuite) TestGetTodos_StatusUnauthorized() {
 	result := testutil.NewRequest().Get("/todos").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusUnauthorized, result.Code())
 }
 
-func (s *testTodosControllerSuite) TestGetTodo_StatusOk() {
-	s.SetCsrfHeaderValues()
+func (s *testTodosHandlerSuite) TestGetTodo_StatusOk() {
 	s.SignIn()
 
 	todoParam := map[string]interface{}{"UserID": int64(user.ID), "Title": "test title 1", "Content": null.String{String: "test content 1", Valid: true}}
@@ -170,7 +143,6 @@ func (s *testTodosControllerSuite) TestGetTodo_StatusOk() {
 	}
 	todo.Reload(ctx, DBCon)
 
-	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Get("/todos/"+strconv.Itoa(int(todo.ID))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
@@ -181,15 +153,12 @@ func (s *testTodosControllerSuite) TestGetTodo_StatusOk() {
 	assert.Equal(s.T(), "test content 1", res.Todo.Content)
 }
 
-func (s *testTodosControllerSuite) TestGetTodo_StatusUnauthorized() {
-	s.SetCsrfHeaderValues()
-	
+func (s *testTodosHandlerSuite) TestGetTodo_StatusUnauthorized() {
 	result := testutil.NewRequest().Get("/todos/1").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusUnauthorized, result.Code())
 }
 
-func (s *testTodosControllerSuite) TestGetTodo_StatusNotFound() {
-	s.SetCsrfHeaderValues()
+func (s *testTodosHandlerSuite) TestGetTodo_StatusNotFound() {
 	s.SignIn()
 
 	todoParam := map[string]interface{}{"UserID": int64(user.ID), "Title": "test title 1", "Content": null.String{String: "test content 1", Valid: true}}
@@ -199,13 +168,11 @@ func (s *testTodosControllerSuite) TestGetTodo_StatusNotFound() {
 	}
 	todo.Reload(ctx, DBCon)
 	
-	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Get("/todos/"+strconv.Itoa(int(todo.ID + 1))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusNotFound, result.Code())
 }
 
-func (s *testTodosControllerSuite) TestPatchTodo_StatusOk() {
-	s.SetCsrfHeaderValues()
+func (s *testTodosHandlerSuite) TestPatchTodo_StatusOk() {
 	s.SignIn()
 
 	todoParam := map[string]interface{}{"UserID": int64(user.ID), "Title": "test title 1", "Content": null.String{String: "test content 1", Valid: true}}
@@ -219,7 +186,6 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusOk() {
 		Title: "test updated title 1",
 		Content: "test updated content 1",
 	}
-	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Patch("/todos/"+strconv.Itoa(int(todo.ID))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
@@ -236,8 +202,7 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusOk() {
 	assert.Equal(s.T(), null.String{String: "test updated content 1", Valid: true}, todo.Content)
 }
 
-func (s *testTodosControllerSuite) TestPatchTodo_BadRequest() {
-	s.SetCsrfHeaderValues()
+func (s *testTodosHandlerSuite) TestPatchTodo_BadRequest() {
 	s.SignIn()
 
 	todoParam := map[string]interface{}{"UserID": int64(user.ID), "Title": "test title 1", "Content": null.String{String: "test content 1", Valid: true}}
@@ -251,7 +216,6 @@ func (s *testTodosControllerSuite) TestPatchTodo_BadRequest() {
 		Title: "",
 		Content: "test updated content 1",
 	}
-	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Patch("/todos/"+strconv.Itoa(int(todo.ID))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
@@ -270,9 +234,7 @@ func (s *testTodosControllerSuite) TestPatchTodo_BadRequest() {
 	assert.Equal(s.T(), null.String{String: "test content 1", Valid: true}, todo.Content)
 }
 
-func (s *testTodosControllerSuite) TestPatchTodo_StatusUnauthorized() {
-	s.SetCsrfHeaderValues()
-
+func (s *testTodosHandlerSuite) TestPatchTodo_StatusUnauthorized() {
 	reqBody := todos.StoreTodoInput{
 		Title: "test_title",
 		Content: "test_content",
@@ -281,8 +243,7 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusUnauthorized() {
 	assert.Equal(s.T(), http.StatusUnauthorized, result.Code())
 }
 
-func (s *testTodosControllerSuite) TestPatchTodo_StatusNotFound() {
-	s.SetCsrfHeaderValues()
+func (s *testTodosHandlerSuite) TestPatchTodo_StatusNotFound() {
 	s.SignIn()
 
 	todoParam := map[string]interface{}{"UserID": int64(user.ID), "Title": "test title 1", "Content": null.String{String: "test content 1", Valid: true}}
@@ -296,7 +257,6 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusNotFound() {
 		Title: "test updated title 1",
 		Content: "test updated content 1",
 	}
-	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Patch("/todos/"+strconv.Itoa(int(todo.ID + 1))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusNotFound, result.Code())
 
@@ -308,8 +268,7 @@ func (s *testTodosControllerSuite) TestPatchTodo_StatusNotFound() {
 	assert.Equal(s.T(), null.String{String: "test content 1", Valid: true}, todo.Content)
 }
 
-func (s *testTodosControllerSuite) TestDeleteTodo_StatusOk() {
-	s.SetCsrfHeaderValues()
+func (s *testTodosHandlerSuite) TestDeleteTodo_StatusOk() {
 	s.SignIn()
 
 	todoParam := map[string]interface{}{"UserID": int64(user.ID), "Title": "test title 1", "Content": null.String{String: "test content 1", Valid: true}}
@@ -319,7 +278,6 @@ func (s *testTodosControllerSuite) TestDeleteTodo_StatusOk() {
 	}
 	todo.Reload(ctx, DBCon)
 
-	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Delete("/todos/"+strconv.Itoa(int(todo.ID))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
@@ -334,15 +292,12 @@ func (s *testTodosControllerSuite) TestDeleteTodo_StatusOk() {
 	assert.NotNil(s.T(), err)
 }
 
-func (s *testTodosControllerSuite) TestDeleteTodo_StatusUnauthorized() {
-	s.SetCsrfHeaderValues()
-
+func (s *testTodosHandlerSuite) TestDeleteTodo_StatusUnauthorized() {
 	result := testutil.NewRequest().Delete("/todos/1").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusUnauthorized, result.Code())
 }
 
-func (s *testTodosControllerSuite) TestDeleteTodo_StatusNotFound() {
-	s.SetCsrfHeaderValues()
+func (s *testTodosHandlerSuite) TestDeleteTodo_StatusNotFound() {
 	s.SignIn()
 
 	todoParam := map[string]interface{}{"UserID": int64(user.ID), "Title": "test title 1", "Content": null.String{String: "test content 1", Valid: true}}
@@ -352,7 +307,6 @@ func (s *testTodosControllerSuite) TestDeleteTodo_StatusNotFound() {
 	}
 	todo.Reload(ctx, DBCon)
 	
-	s.SetCsrfHeaderValues()
 	result := testutil.NewRequest().Delete("/todos/"+strconv.Itoa(int(todo.ID + 1))).WithHeader("Cookie", token+"; "+csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusNotFound, result.Code())
 
@@ -361,7 +315,7 @@ func (s *testTodosControllerSuite) TestDeleteTodo_StatusNotFound() {
 	assert.Nil(s.T(), err)
 }
 
-func TestTodosController(t *testing.T) {
+func TestTodosHandler(t *testing.T) {
 	// テストスイートを実施
-	suite.Run(t, new(testTodosControllerSuite))
+	suite.Run(t, new(testTodosHandlerSuite))
 }
