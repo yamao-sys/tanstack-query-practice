@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"app/generated/auth"
 	apis "app/openapi"
 	"app/utils"
 	"context"
@@ -14,7 +13,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func AuthMiddleware(f auth.StrictHandlerFunc, operationID string) auth.StrictHandlerFunc {
+func AuthMiddleware(f apis.StrictHandlerFunc, operationID string) apis.StrictHandlerFunc {
     return func(ctx echo.Context, i interface{}) (interface{}, error) {
 		if !needsAuthenticate(operationID) {
 			// NOTE: 認証が不要なURIは認証をスキップ

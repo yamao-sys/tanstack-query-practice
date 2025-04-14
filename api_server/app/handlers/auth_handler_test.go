@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"app/generated/auth"
 	models "app/models/generated"
+	apis "app/openapi"
 	"app/test/factories"
 	"bytes"
 	"encoding/json"
@@ -58,7 +58,7 @@ func (s *TestAuthHandlerSuite) TestPostAuthValidateSignUp_SuccessRequiredFields(
 	result := testutil.NewRequest().Post("/auth/validateSignUp").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithBody(body.Bytes()).WithContentType(mw.FormDataContentType()).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res auth.SignUpResponseJSONResponse
+	var res apis.SignUpResponseJSONResponse
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 	
@@ -87,7 +87,7 @@ func (s *TestAuthHandlerSuite) TestPostAuthValidateSignUp_ValidationErrorRequire
 	result := testutil.NewRequest().Post("/auth/validateSignUp").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithBody(body.Bytes()).WithContentType(mw.FormDataContentType()).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res auth.SignUpResponseJSONResponse
+	var res apis.SignUpResponseJSONResponse
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 	
@@ -131,7 +131,7 @@ func (s *TestAuthHandlerSuite) TestPostAuthValidateSignUp_SuccessWithOptionalFie
 	result := testutil.NewRequest().Post("/auth/validateSignUp").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithBody(body.Bytes()).WithContentType(mw.FormDataContentType()).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res auth.SignUpResponseJSONResponse
+	var res apis.SignUpResponseJSONResponse
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 	
@@ -171,7 +171,7 @@ func (s *TestAuthHandlerSuite) TestPostAuthValidateSignUp_ValidationErrorWithOpt
 	result := testutil.NewRequest().Post("/auth/validateSignUp").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithBody(body.Bytes()).WithContentType(mw.FormDataContentType()).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res auth.SignUpResponseJSONResponse
+	var res apis.SignUpResponseJSONResponse
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 	
@@ -200,7 +200,7 @@ func (s *TestAuthHandlerSuite) TestPostAuthSignUp_SuccessRequiredFields() {
 	result := testutil.NewRequest().Post("/auth/signUp").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithBody(body.Bytes()).WithContentType(mw.FormDataContentType()).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res auth.SignUpResponseJSONResponse
+	var res apis.SignUpResponseJSONResponse
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 	
@@ -254,7 +254,7 @@ func (s *TestAuthHandlerSuite) TestPostAuthSignUp_SuccessWithOptionalFields() {
 	result := testutil.NewRequest().Post("/auth/signUp").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithBody(body.Bytes()).WithContentType(mw.FormDataContentType()).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res auth.SignUpResponseJSONResponse
+	var res apis.SignUpResponseJSONResponse
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 	
@@ -308,7 +308,7 @@ func (s *TestAuthHandlerSuite) TestPostAuthSignUp_SuccessWithEmptyBirthday() {
 	result := testutil.NewRequest().Post("/auth/signUp").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithBody(body.Bytes()).WithContentType(mw.FormDataContentType()).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res auth.SignUpResponseJSONResponse
+	var res apis.SignUpResponseJSONResponse
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 	
@@ -337,7 +337,7 @@ func (s *TestAuthHandlerSuite) TestPostAuthSignIn_StatusOk() {
 		s.T().Fatalf("failed to create test user %v", err)
 	}
 
-	reqBody := auth.SignInInput{
+	reqBody := apis.SignInInput{
 		Email: "test@example.com",
 		Password: "password",
 	}
@@ -355,14 +355,14 @@ func (s *TestAuthHandlerSuite) TestPostAuthSignIn_BadRequest() {
 		s.T().Fatalf("failed to create test user %v", err)
 	}
 
-	reqBody := auth.SignInInput{
+	reqBody := apis.SignInInput{
 		Email: "test_@example.com",
 		Password: "password",
 	}
 	result := testutil.NewRequest().Post("/auth/signIn").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), int(http.StatusBadRequest), result.Code())
 
-	var res auth.SignInBadRequestResponse
+	var res apis.SignInBadRequestResponse
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 
