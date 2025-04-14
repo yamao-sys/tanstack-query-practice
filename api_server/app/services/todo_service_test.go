@@ -1,8 +1,8 @@
 package services
 
 import (
-	"app/generated/todos"
 	models "app/models/generated"
+	apis "app/openapi"
 	"app/test/factories"
 	"net/http"
 	"testing"
@@ -40,7 +40,7 @@ func (s *TestTodoServiceSuite) TearDownTest() {
 }
 
 func (s *TestTodoServiceSuite) TestCreateTodo() {
-	requestParams := todos.PostTodosJSONRequestBody{Title: "test title 1", Content: "test content 1"}
+	requestParams := apis.PostTodosJSONRequestBody{Title: "test title 1", Content: "test content 1"}
 
 	statusCode, err := testTodoService.CreateTodo(ctx, requestParams, int64(user.ID))
 
@@ -55,7 +55,7 @@ func (s *TestTodoServiceSuite) TestCreateTodo() {
 }
 
 func (s *TestTodoServiceSuite) TestCreateTodo_ValidationError() {
-	requestParams := todos.PostTodosJSONRequestBody{Title: "", Content: "test content 1"}
+	requestParams := apis.PostTodosJSONRequestBody{Title: "", Content: "test content 1"}
 
 	statusCode, err := testTodoService.CreateTodo(ctx, requestParams, int64(user.ID))
 
@@ -127,7 +127,7 @@ func (s *TestTodoServiceSuite) TestUpdateTodo_StatusOk() {
 		s.T().Fatalf("failed to create test todos %v", err)
 	}
 
-	requestParams := todos.PatchTodoJSONRequestBody{Title: "test updated title 1", Content: "test updated content 1"}
+	requestParams := apis.PatchTodoJSONRequestBody{Title: "test updated title 1", Content: "test updated content 1"}
 	statusCode, err := testTodoService.UpdateTodo(ctx, testTodo.ID, requestParams, int64(user.ID))
 
 	assert.Equal(s.T(), int64(http.StatusOK), statusCode)
@@ -146,7 +146,7 @@ func (s *TestTodoServiceSuite) TestUpdateTodo_ValidationError() {
 		s.T().Fatalf("failed to create test todos %v", err)
 	}
 
-	requestParams := todos.PatchTodoJSONRequestBody{Title: "", Content: "test updated content 1"}
+	requestParams := apis.PatchTodoJSONRequestBody{Title: "", Content: "test updated content 1"}
 	statusCode, err := testTodoService.UpdateTodo(ctx, testTodo.ID, requestParams, int64(user.ID))
 
 	assert.Contains(s.T(), err.Error(), "タイトルは必須入力です。")
@@ -165,7 +165,7 @@ func (s *TestTodoServiceSuite) TestUpdateTodo_NotFound() {
 		s.T().Fatalf("failed to create test todos %v", err)
 	}
 
-	requestParams := todos.PatchTodoJSONRequestBody{Title: "test updated title 1", Content: "test updated content 1"}
+	requestParams := apis.PatchTodoJSONRequestBody{Title: "test updated title 1", Content: "test updated content 1"}
 	statusCode, err := testTodoService.UpdateTodo(ctx, testTodo.ID + 1, requestParams, int64(user.ID))
 
 	assert.Equal(s.T(), int64(http.StatusNotFound), statusCode)
