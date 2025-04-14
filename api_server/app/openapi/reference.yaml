@@ -21,6 +21,7 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/SignUpInput'
       description: validate sign up
+      security: []
       tags:
         - auth
   /auth/signUp:
@@ -36,6 +37,7 @@ paths:
       operationId: post-auth-sign_up
       requestBody:
         $ref: '#/components/requestBodies/SignUpInput'
+      security: []
       tags:
         - auth
   /auth/signIn:
@@ -51,6 +53,7 @@ paths:
       operationId: post-auth-sign_in
       requestBody:
         $ref: '#/components/requestBodies/SignInInput'
+      security: []
       tags:
         - auth
   /auth/csrf:
@@ -62,6 +65,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
       operationId: get-auth-csrf
+      security: []
       tags:
         - auth
   /todos:
