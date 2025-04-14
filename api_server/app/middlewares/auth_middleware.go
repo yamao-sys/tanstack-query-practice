@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"app/generated/auth"
+	apis "app/openapi"
 	"app/utils"
 	"context"
 	"fmt"
@@ -15,6 +16,11 @@ import (
 
 func AuthMiddleware(f auth.StrictHandlerFunc, operationID string) auth.StrictHandlerFunc {
     return func(ctx echo.Context, i interface{}) (interface{}, error) {
+		if !needsAuthenticate(operationID) {
+			// NOTE: 認証が不要なURIは認証をスキップ
+			return f(ctx, i)
+		}
+		
         // NOTE: Cookieからtokenを取得し、JWTの復号
 		tokenString, _ := ctx.Cookie("token")
 		if tokenString == nil {
@@ -58,4 +64,17 @@ func CSRFContextMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 		return next(c)
 	}
+}
+
+func needsAuthenticate(operationID string) (bool) {
+	spec, _ := apis.GetSwagger()
+	for _, pathItem := range spec.Paths.Map() {
+		for _, op := range pathItem.Operations() {
+			if op.OperationID != operationID {
+				continue
+			}
+			return len(*op.Security) > 0
+		}
+	}
+	return false
 }
