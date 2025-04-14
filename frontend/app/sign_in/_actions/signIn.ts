@@ -1,8 +1,8 @@
 "use server";
 
+import { paths } from "@/apis/apiSchema";
 import { getRequestHeaders } from "@/apis/clients/base";
-import { paths } from "@/apis/generated/auth/apiSchema";
-import { AuthSignInInput } from "@/apis/types/auth";
+import { AuthSignInInput } from "@/apis/types";
 import { cookies } from "next/headers";
 import createClient from "openapi-fetch";
 

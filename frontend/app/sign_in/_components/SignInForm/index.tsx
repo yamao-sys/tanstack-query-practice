@@ -1,10 +1,10 @@
 "use client";
 
-import { AuthSignInInput } from "@/apis/types/auth";
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { postSignIn } from "../../_actions/signIn";
 import { useRouter } from "next/navigation";
+import { AuthSignInInput } from "@/apis/types";
 
 export const SignInForm: FC = () => {
   const {

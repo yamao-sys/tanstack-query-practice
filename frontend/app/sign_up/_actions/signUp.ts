@@ -1,8 +1,8 @@
 "use server";
 
+import { paths } from "@/apis/apiSchema";
 import { getRequestHeaders } from "@/apis/clients/base";
-import { paths } from "@/apis/generated/auth/apiSchema";
-import { AuthSignUpInput } from "@/apis/types/auth";
+import { AuthSignUpInput } from "@/apis/types";
 import createClient from "openapi-fetch";
 
 const client = createClient<paths>({

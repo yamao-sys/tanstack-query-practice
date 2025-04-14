@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import createClient from "openapi-fetch";
-import { paths } from "../generated/auth/apiSchema";
+import { paths } from "../apiSchema";
 
 export const getRequestHeaders = async () => {
   const csrfToken = (await cookies()).get("_csrf")?.value ?? "";
