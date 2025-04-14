@@ -1,11 +1,10 @@
 package main
 
 import (
-	"app/controllers"
 	"app/db"
-	"app/generated/auth"
-	"app/generated/todos"
+	"app/handlers"
 	"app/middlewares"
+	apis "app/openapi"
 	"app/services"
 	"app/utils/routers"
 	"os"
@@ -24,19 +23,15 @@ func main() {
 	authService := services.NewAuthService(dbCon)
 	todoService := services.NewTodoService(dbCon)
 
-	// NOTE: controllerをHandlerに追加
-	server := controllers.NewAuthController(authService)
-	strictHandler := auth.NewStrictHandler(server, nil)
-
-	todosServer := controllers.NewTodosController(todoService)
+	// NOTE: Handlerのインスタンス化
+	authHandler := handlers.NewAuthHandler(authService)
+	todosHandler := handlers.NewTodosHandler(todoService)
+	mainHandler := handlers.NewMainHandler(authHandler, todosHandler)
 	
-	todosMiddlewares := []todos.StrictMiddlewareFunc{middlewares.AuthMiddleware}
-	todosStrictHandler := todos.NewStrictHandler(todosServer, todosMiddlewares)
+	mainStrictHandler := apis.NewStrictHandler(mainHandler, []apis.StrictMiddlewareFunc{middlewares.AuthMiddleware})
 
 	appliedMiddlewareEcho := routers.ApplyMiddlewares(e)
-
-	auth.RegisterHandlers(appliedMiddlewareEcho, strictHandler)
-	todos.RegisterHandlers(appliedMiddlewareEcho, todosStrictHandler)
+	apis.RegisterHandlers(appliedMiddlewareEcho, mainStrictHandler)
 
 	appliedMiddlewareEcho.Logger.Fatal(appliedMiddlewareEcho.Start(":" + os.Getenv("SERVER_PORT")))
 }
