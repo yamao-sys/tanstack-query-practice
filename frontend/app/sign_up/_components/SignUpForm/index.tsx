@@ -1,9 +1,9 @@
 "use client";
 
-import { AuthSignUpInput, AuthSignUpValidationError } from "@/apis/types/auth";
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { postSignUp } from "../../_actions/signUp";
+import { AuthSignUpInput, AuthSignUpValidationError } from "@/apis/types";
 
 const INITIAL_VALIDATION_ERRORS = {
   firstName: [],

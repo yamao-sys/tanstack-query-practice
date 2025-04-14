@@ -1,12 +1,12 @@
 "use client";
 
-import { StoreTodoInput, StoreTodoValidationError } from "@/apis/types/todos";
 import { FC } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { TodoStoreForm } from "@/app/todos/_components/TodoStoreForm";
 import { INITIAL_VALIDATION_ERRORS, useStoreTodo } from "@/app/todos/_hooks/useStoreTodo";
 import { postTodos } from "@/apis/todos.api";
+import { StoreTodoInput, StoreTodoValidationError } from "@/apis/types";
 
 export const TodosNewForm: FC = () => {
   const doStoreTodoInput: StoreTodoInput = { title: "", content: "" };

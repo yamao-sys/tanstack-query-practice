@@ -10,7 +10,8 @@
     "lint": "next lint",
     "format:check": "prettier  --check './**/*.{ts,tsx}'",
     "format:fix": "prettier --write --ignore-path .gitignore './**/*.{js,jsx,ts,tsx,json}'",
-    "tsc": "tsc --noEmit"
+    "tsc": "tsc --noEmit",
+    "gen:schema": "pnpx tsx generate_api_types.ts /app/openapi/reference.yaml /app/apis/"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.72.2",

@@ -1,6 +1,6 @@
 "use client";
 
-import { Todo } from "@/apis/types/todos";
+import { Todo } from "@/apis/types";
 import Link from "next/link";
 import { FC, useState } from "react";
 
