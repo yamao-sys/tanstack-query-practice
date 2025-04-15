@@ -1,15 +1,14 @@
 "use client";
 
-import { Todo } from "@/apis/types";
+import { useTodoLists } from "@/feature/todos/hooks/useTodo";
 import Link from "next/link";
-import { FC, useState } from "react";
+import { FC } from "react";
 
-type Props = {
-  todos: Todo[];
-};
+export const TodosList: FC = () => {
+  const { data: todos, isPending } = useTodoLists();
 
-export const TodosList: FC<Props> = ({ todos }: Props) => {
-  const [displayTodos, setDisplayTodos] = useState<Todo[]>(todos); // eslint-disable-line @typescript-eslint/no-unused-vars
+  if (isPending) return <p>fetching todos...</p>;
+  if (!isPending && !todos) return <p>unexpected fetching</p>;
 
   return (
     <>
@@ -18,10 +17,10 @@ export const TodosList: FC<Props> = ({ todos }: Props) => {
           <h3 className='text-center text-2xl font-bold'>TODO一覧</h3>
 
           <div className='w-full mt-4 md:mt-16'>
-            {displayTodos.length === 0 ? (
+            {todos.length === 0 ? (
               <p>まだTODOが0件です</p>
             ) : (
-              displayTodos.map((todo) => (
+              todos.map((todo) => (
                 <div key={todo.id} className='max-w-3xl mx-auto space-y-4'>
                   <div className='flex justify-between items-start p-4 bg-white shadow border border-gray-400 hover:bg-gray-50 transition'>
                     <div className='flex gap-3'>
